@@ -1,36 +1,36 @@
-import React, { useState } from 'react';
-import { useAppContext } from '../context/AppContext';
+import React, { useState } from "react"
+import { useAppContext } from "../context/AppContext"
 
 export const ParticipantesPage: React.FC = () => {
-  const { participants, addParticipant } = useAppContext();
-  const [showForm, setShowForm] = useState(false);
+  const { participants, addParticipant } = useAppContext()
+  const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    area: '',
-  });
+    name: "",
+    area: "",
+    curso: "",
+  })
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }));
-  };
+    }))
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     addParticipant({
       name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
       area: formData.area,
-      status: 'active',
-    });
-    setFormData({ name: '', email: '', phone: '', area: '' });
-    setShowForm(false);
-  };
+      curso: formData.curso,
+      status: "active",
+    })
+    setFormData({ name: "", area: "", curso: "" })
+    setShowForm(false)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -41,15 +41,20 @@ export const ParticipantesPage: React.FC = () => {
             onClick={() => setShowForm(!showForm)}
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
           >
-            {showForm ? 'Cancelar' : 'Novo Participante'}
+            {showForm ? "Cancelar" : "Novo Participante"}
           </button>
         </div>
 
         {/* Form */}
         {showForm && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Adicionar Novo Participante</h2>
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              Adicionar Novo Participante
+            </h2>
+            <form
+              onSubmit={handleSubmit}
+              className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            >
               <input
                 type="text"
                 name="name"
@@ -57,23 +62,6 @@ export const ParticipantesPage: React.FC = () => {
                 value={formData.name}
                 onChange={handleInputChange}
                 required
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                type="tel"
-                name="phone"
-                placeholder="Telefone"
-                value={formData.phone}
-                onChange={handleInputChange}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <select
@@ -89,6 +77,23 @@ export const ParticipantesPage: React.FC = () => {
                 <option value="Meio Ambiente">Meio Ambiente</option>
                 <option value="Tecnologia">Tecnologia</option>
               </select>
+              <select
+                name="curso"
+                value={formData.curso}
+                onChange={handleInputChange}
+                required
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Selecione um curso</option>
+                <option value="Engenharia de Software">Engenharia de Software</option>
+                <option value="Administração">Administração</option>
+                <option value="Medicina">Medicina</option>
+                <option value="Enfermagem">Enfermagem</option>
+                <option value="Direito">Direito</option>
+                <option value="Psicologia">Psicologia</option>
+                <option value="Biologia">Biologia</option>
+                <option value="Ciência da Computação">Ciência da Computação</option>
+              </select>
               <button
                 type="submit"
                 className="md:col-span-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
@@ -101,31 +106,30 @@ export const ParticipantesPage: React.FC = () => {
 
         {/* Participants List */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {participants.map(participant => (
+          {participants.map((participant) => (
             <div
               key={participant.id}
               className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
             >
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{participant.name}</h3>
-              <p className="text-gray-600 mb-2">
-                <strong>Email:</strong> {participant.email}
-              </p>
-              <p className="text-gray-600 mb-2">
-                <strong>Telefone:</strong> {participant.phone || 'N/A'}
-              </p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                {participant.name}
+              </h3>
               <p className="text-gray-600 mb-2">
                 <strong>Área:</strong> {participant.area}
               </p>
+              <p className="text-gray-600 mb-2">
+                <strong>Curso:</strong> {participant.curso}
+              </p>
               <p className="text-gray-600 mb-4">
-                <strong>Status:</strong>{' '}
+                <strong>Status:</strong>{" "}
                 <span
                   className={`font-bold ${
-                    participant.status === 'active'
-                      ? 'text-green-600'
-                      : 'text-red-600'
+                    participant.status === "active"
+                      ? "text-green-600"
+                      : "text-red-600"
                   }`}
                 >
-                  {participant.status === 'active' ? 'Ativo' : 'Inativo'}
+                  {participant.status === "active" ? "Ativo" : "Inativo"}
                 </span>
               </p>
               <div className="flex gap-2">
@@ -142,10 +146,12 @@ export const ParticipantesPage: React.FC = () => {
 
         {participants.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-600 text-lg">Nenhum participante cadastrado ainda.</p>
+            <p className="text-gray-600 text-lg">
+              Nenhum participante cadastrado ainda.
+            </p>
           </div>
         )}
       </div>
     </div>
-  );
-};
+  )
+}
