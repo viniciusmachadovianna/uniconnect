@@ -21,6 +21,12 @@ interface Class {
   location: string;
   participants: number;
   status: 'scheduled' | 'completed' | 'cancelled';
+  documents?: Array<{
+    id: string;
+    name: string;
+    url: string;
+    uploadedAt: Date;
+  }>;
 }
 
 interface Activity {
@@ -33,6 +39,7 @@ interface Activity {
   responsible: string;
   impact: string;
   status: 'created' | 'updated' | 'deleted';
+  classId?: string; // Relacionamento com aula
   images?: string[];
   videos?: string[];
   createdAt: Date;
@@ -52,6 +59,8 @@ interface AppContextType {
   deleteParticipant: (id: string) => void;
   deleteClass: (id: string) => void;
   deleteActivity: (id: string) => void;
+  addDocumentToClass: (classId: string, document: { name: string; url: string }) => void;
+  removeDocumentFromClass: (classId: string, documentId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -73,6 +82,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       email: 'maria@example.com',
       phone: '(11) 99999-7777',
       area: 'Saúde',
+      status: 'active',
+      createdAt: new Date(),
+    },
+        {
+      id: '3',
+      name: 'Carlos Oliveira',
+      email: 'carlos@example.com',
+      phone: '(11) 99999-6666',
+      area: 'Tecnologia',
+      status: 'active',
+      createdAt: new Date(),
+    },
+    {
+      id: '4',
+      name: 'Ana Souza',
+      email: 'ana@example.com',
+      phone: '(11) 99999-5555',
+      area: 'Design',
       status: 'active',
       createdAt: new Date(),
     },
@@ -157,6 +184,40 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setActivities(activities.filter(a => a.id !== id));
   };
 
+  const addDocumentToClass = (classId: string, document: { name: string; url: string }) => {
+    setClasses(
+      classes.map(c =>
+        c.id === classId
+          ? {
+              ...c,
+              documents: [
+                ...(c.documents || []),
+                {
+                  id: Math.random().toString(36).substr(2, 9),
+                  name: document.name,
+                  url: document.url,
+                  uploadedAt: new Date(),
+                },
+              ],
+            }
+          : c
+      )
+    );
+  };
+
+  const removeDocumentFromClass = (classId: string, documentId: string) => {
+    setClasses(
+      classes.map(c =>
+        c.id === classId
+          ? {
+              ...c,
+              documents: (c.documents || []).filter(d => d.id !== documentId),
+            }
+          : c
+      )
+    );
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -172,6 +233,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         deleteParticipant,
         deleteClass,
         deleteActivity,
+        addDocumentToClass,
+        removeDocumentFromClass,
       }}
     >
       {children}

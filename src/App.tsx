@@ -1,11 +1,11 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { Navbar } from './components/Navbar';
 import { HomePage } from './pages/HomePage';
 import { ParticipantesPage } from './pages/ParticipantesPage';
 import { AulasPage } from './pages/AulasPage';
-import { AtividadesPage } from './pages/AtividadesPage';
+import { AboutPage } from './pages/AboutPage';
+
 import './index.css';
 
 function App() {
@@ -17,7 +17,8 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/participantes" element={<ParticipantesPage />} />
           <Route path="/aulas" element={<AulasPage />} />
-          <Route path="/atividades" element={<AtividadesPage />} />
+          <Route path="/sobre" element={<AboutPage />} />
+
         </Routes>
       </AppProvider>
     </Router>

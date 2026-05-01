@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 
 export const AulasPage: React.FC = () => {
-  const { classes, addClass } = useAppContext();
+  const { classes, addClass, addDocumentToClass, removeDocumentFromClass } = useAppContext();
   const [showForm, setShowForm] = useState(false);
+  const [expandedClassId, setExpandedClassId] = useState<string | null>(null);
+  const [documentInput, setDocumentInput] = useState<{ [key: string]: { name: string; url: string } }>({});
+  
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -44,6 +47,27 @@ export const AulasPage: React.FC = () => {
       participants: '',
     });
     setShowForm(false);
+  };
+
+  const handleAddDocument = (classId: string) => {
+    const input = documentInput[classId];
+    if (input && input.name && input.url) {
+      addDocumentToClass(classId, input);
+      setDocumentInput(prev => ({
+        ...prev,
+        [classId]: { name: '', url: '' }
+      }));
+    }
+  };
+
+  const handleDocumentInputChange = (classId: string, field: 'name' | 'url', value: string) => {
+    setDocumentInput(prev => ({
+      ...prev,
+      [classId]: {
+        ...prev[classId],
+        [field]: value
+      }
+    }));
   };
 
   const formatDate = (date: Date) => {
@@ -144,10 +168,10 @@ export const AulasPage: React.FC = () => {
           {classes.map(classItem => (
             <div
               key={classItem.id}
-              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border-l-4 border-green-600"
             >
               <div className="flex justify-between items-start mb-4">
-                <div>
+                <div className="flex-1">
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">{classItem.title}</h3>
                   <p className="text-gray-600">{classItem.description}</p>
                 </div>
@@ -187,9 +211,87 @@ export const AulasPage: React.FC = () => {
                 </div>
               </div>
 
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 mb-6">
                 <strong>Local:</strong> {classItem.location}
               </p>
+
+              {/* Documents Section */}
+              <div className="mb-6 bg-gray-50 p-4 rounded-lg">
+                <button
+                  onClick={() => setExpandedClassId(expandedClassId === classItem.id ? null : classItem.id)}
+                  className="text-lg font-bold text-gray-900 hover:text-green-600 transition-colors flex items-center gap-2"
+                >
+                  📄 Documentos {classItem.documents && classItem.documents.length > 0 ? `(${classItem.documents.length})` : '(0)'}
+                  <span className={`transform transition-transform ${expandedClassId === classItem.id ? 'rotate-180' : ''}`}>
+                    ▼
+                  </span>
+                </button>
+
+                {expandedClassId === classItem.id && (
+                  <div className="mt-4 space-y-4">
+                    {/* Add Document Form */}
+                    <div className="bg-white p-4 rounded-lg border border-gray-200">
+                      <h4 className="font-bold text-gray-900 mb-3">Adicionar Documento</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <input
+                          type="text"
+                          placeholder="Nome do documento"
+                          value={documentInput[classItem.id]?.name || ''}
+                          onChange={(e) => handleDocumentInputChange(classItem.id, 'name', e.target.value)}
+                          className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+                        <input
+                          type="url"
+                          placeholder="URL do documento"
+                          value={documentInput[classItem.id]?.url || ''}
+                          onChange={(e) => handleDocumentInputChange(classItem.id, 'url', e.target.value)}
+                          className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+                      </div>
+                      <button
+                        onClick={() => handleAddDocument(classItem.id)}
+                        className="mt-3 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                      >
+                        Adicionar Documento
+                      </button>
+                    </div>
+
+                    {/* Documents List */}
+                    {classItem.documents && classItem.documents.length > 0 ? (
+                      <div className="space-y-2">
+                        {classItem.documents.map(doc => (
+                          <div key={doc.id} className="bg-white p-3 rounded-lg border border-gray-200 flex justify-between items-center">
+                            <div>
+                              <p className="font-bold text-gray-900">{doc.name}</p>
+                              <p className="text-sm text-gray-500">
+                                Enviado em {new Date(doc.uploadedAt).toLocaleDateString('pt-BR')}
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <a
+                                href={doc.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded transition-colors text-sm"
+                              >
+                                Abrir
+                              </a>
+                              <button
+                                onClick={() => removeDocumentFromClass(classItem.id, doc.id)}
+                                className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded transition-colors text-sm"
+                              >
+                                Remover
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-600 text-center py-2">Nenhum documento adicionado ainda.</p>
+                    )}
+                  </div>
+                )}
+              </div>
 
               <div className="flex gap-2">
                 <button className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors">

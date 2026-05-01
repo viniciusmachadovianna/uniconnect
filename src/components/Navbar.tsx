@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export const Navbar: React.FC = () => {
   return (
-    <nav className="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
+    <nav className="bg-gradient-to-r text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center gap-2">
@@ -33,10 +33,10 @@ export const Navbar: React.FC = () => {
               Aulas
             </Link>
             <Link
-              to="/atividades"
+              to="/sobre"
               className="hover:text-blue-100 transition-colors duration-200"
             >
-              Atividades
+              Sobre Nós
             </Link>
           </div>
         </div>
