@@ -13,6 +13,7 @@ export const Navbar: React.FC = () => {
     { name: 'Sobre Nós', path: '/sobre' },
     { name: 'Participantes', path: '/participantes' },
     { name: 'Aulas', path: '/aulas' },
+    { name: 'Aba Office', path: '/office' },
   ];
 
   return (

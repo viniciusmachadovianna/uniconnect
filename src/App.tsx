@@ -5,6 +5,7 @@ import { HomePage } from './pages/HomePage';
 import { ParticipantesPage } from './pages/ParticipantesPage';
 import { AulasPage } from './pages/AulasPage';
 import { AboutPage } from './pages/AboutPage';
+import { OfficePage } from './pages/OfficePage';
 
 import './index.css';
 
@@ -17,6 +18,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/participantes" element={<ParticipantesPage />} />
           <Route path="/aulas" element={<AulasPage />} />
+          <Route path="/office" element={<OfficePage />} />
           <Route path="/sobre" element={<AboutPage />} />
 
         </Routes>
