@@ -6,6 +6,7 @@ interface Participant {
   curso: string
   area: string
   status: "active" | "inactive"
+  photo?: string
   createdAt: Date
   lastLogin?: Date
 }
@@ -73,33 +74,81 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const [participants, setParticipants] = useState<Participant[]>([
     {
       id: "1",
-      name: "João Silva",
+      name: "Caio Ladeira Dornellas",
       curso: "Engenharia de Software",
-      area: "Educação",
+      area: "Marketing",
       status: "active",
       createdAt: new Date(),
     },
     {
       id: "2",
-      name: "Maria Santos",
-      curso: "Medicina",
-      area: "Saúde",
+      name: "Carlos Alberto Ribeiro de Souza Junior",
+      curso: "Sistemas de Informação",
+      area: "Desenvolvedor",
       status: "active",
       createdAt: new Date(),
     },
     {
       id: "3",
-      name: "Carlos Oliveira",
-      curso: "Engenharia de Software",
-      area: "Tecnologia",
+      name: "Carlos Eduardo Dias da Silva",
+      curso: "Sistemas de Informação",
+      area: "Professor",
       status: "active",
       createdAt: new Date(),
     },
     {
       id: "4",
-      name: "Ana Souza",
-      curso: "Design",
-      area: "Design",
+      name: "Felipe Augusto",
+      curso: "Engenharia de Software",
+      area: "Marketing",
+      status: "active",
+      createdAt: new Date(),
+    },
+    {
+      id: "5",
+      name: "Jackson Aparecido Faria Oliveira",
+      curso: "Sistemas de Informação",
+      area: "Desenvolvedor",
+      status: "active",
+      createdAt: new Date(),
+    },
+    {
+      id: "6",
+      name: "Jean de Souza Morais",
+      curso: "Sistemas de Informação",
+      area: "Desenvolvedor",
+      status: "active",
+      createdAt: new Date(),
+    },
+    {
+      id: "7",
+      name: "Luiz Fernando Pereira",
+      curso: "Engenharia de Software",
+      area: "Professor",
+      status: "active",
+      createdAt: new Date(),
+    },
+    {
+      id: "8",
+      name: "Manuela Oliveira Baganha",
+      curso: "Administração",
+      area: "Marketing",
+      status: "active",
+      createdAt: new Date(),
+    },
+    {
+      id: "9",
+      name: "Pedro Lucas Atalaia Fernandes",
+      curso: "Sistemas de Informação",
+      area: "Desenvolvedor",
+      status: "active",
+      createdAt: new Date(),
+    },
+    {
+      id: "10",
+      name: "Vinícius Machado Vianna",
+      curso: "Engenharia de Software",
+      area: "Professor",
       status: "active",
       createdAt: new Date(),
     },
