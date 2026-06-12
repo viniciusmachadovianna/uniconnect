@@ -208,68 +208,76 @@ export const OfficePage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="flex-grow max-w-6xl w-full mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">📚 Aba Office</h1>
-          <p className="text-gray-600">Materiais completos do curso - Downloads e recursos</p>
+    <div className="flex flex-col min-h-screen bg-slate-50">
+      {/* Header Section */}
+      <div className="relative bg-slate-900 text-white border-b border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">Office</h1>
+              <p className="text-lg md:text-xl text-slate-300 max-w-3xl leading-relaxed">
+                Materiais completos do curso - Downloads e recursos
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              {loading && <span className="text-slate-300 text-sm font-medium">Sincronizando...</span>}
+              <button
+                onClick={() => setShowForm(!showForm)}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-md shadow-sm transition-colors whitespace-nowrap"
+              >
+                {showForm ? 'Cancelar' : 'Novo Material'}
+              </button>
+            </div>
+          </div>
         </div>
+      </div>
 
+      {/* Main Content */}
+      <div className="flex-grow max-w-7xl w-full mx-auto px-4 py-12 sm:px-6 lg:px-8">
         {error && (
-          <div className="mb-6 rounded-lg bg-red-50 border border-red-200 p-4 text-red-700">
+          <div className="mb-8 rounded-lg bg-red-50 border border-red-200 p-4 text-red-700 shadow-sm">
             {error}
           </div>
         )}
 
-        {/* Botão para adicionar material */}
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row items-start sm:items-center justify-between">
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-          >
-            {showForm ? '✖ Cancelar' : '➕ Adicionar Material'}
-          </button>
-          {loading && <span className="text-slate-500">Sincronizando com o backend...</span>}
-        </div>
-
         {/* Formulário para adicionar material */}
         {showForm && (
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-8 border-l-4 border-indigo-600">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-800">Novo Material</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-8">Novo Material</h2>
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Título *</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Título *</label>
                 <input
                   type="text"
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
                   placeholder="Ex: Aula 01 - Introdução"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Descrição</label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
                   placeholder="Descrição adicional sobre o material"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   rows={3}
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo *</label>
                   <select
                     name="type"
                     value={formData.type}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   >
                     <option value="pdf">📄 PDF</option>
                     <option value="video">🎥 Vídeo</option>
@@ -279,7 +287,7 @@ export const OfficePage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">URL/Link</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">URL/Link</label>
                   <input
                     type="url"
                     name="url"
@@ -287,22 +295,22 @@ export const OfficePage: React.FC = () => {
                     onChange={handleInputChange}
                     placeholder="https://exemplo.com/arquivo"
                     disabled={!!selectedFile}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-slate-100 disabled:text-slate-500 transition-all"
                   />
-                  <p className="text-xs text-gray-500 mt-1">OU faça upload abaixo</p>
+                  <p className="text-xs text-slate-500 mt-2 font-medium">OU faça upload de um arquivo abaixo</p>
                 </div>
               </div>
 
               {/* Área de upload com drag-and-drop */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">📤 Arquivo (Opcional)</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">📤 Arquivo (Opcional)</label>
                 <div
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
                   onDragOver={handleDrag}
                   onDrop={handleDrop}
-                  className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-                    dragActive ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300 bg-gray-50'
+                  className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                    dragActive ? 'border-blue-500 bg-blue-50' : 'border-slate-300 bg-slate-50'
                   }`}
                 >
                   <input
@@ -315,16 +323,16 @@ export const OfficePage: React.FC = () => {
                     {selectedFile ? (
                       <>
                         <p className="text-green-600 font-semibold">✅ Arquivo selecionado</p>
-                        <p className="text-sm text-gray-600 mt-1">{selectedFile.name}</p>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-sm text-slate-600 mt-1">{selectedFile.name}</p>
+                        <p className="text-xs text-slate-500 mt-1">
                           {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                         </p>
                       </>
                     ) : (
                       <>
-                        <p className="text-gray-700 font-semibold">Arraste um arquivo aqui</p>
-                        <p className="text-gray-600 text-sm mt-1">ou clique para procurar</p>
-                        <p className="text-xs text-gray-500 mt-2">Formatos: PDF, DOC, XLS, PPT, ZIP, MP4, etc.</p>
+                        <p className="text-slate-700 font-semibold">Arraste um arquivo aqui</p>
+                        <p className="text-slate-600 text-sm mt-1">ou clique para procurar</p>
+                        <p className="text-xs text-slate-500 mt-2">Formatos: PDF, DOC, XLS, PPT, ZIP, MP4, etc.</p>
                       </>
                     )}
                   </div>
@@ -333,19 +341,19 @@ export const OfficePage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setSelectedFile(null)}
-                    className="mt-2 text-sm text-red-600 hover:text-red-700 font-medium"
+                    className="mt-3 text-sm text-red-600 hover:text-red-700 font-semibold transition-colors"
                   >
                     ✕ Limpar arquivo
                   </button>
                 )}
               </div>
 
-              <div className="flex gap-2 pt-2">
+              <div className="pt-4">
                 <button
                   type="submit"
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+                  className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-md transition-colors"
                 >
-                  ✅ Salvar Material
+                  Salvar Material
                 </button>
               </div>
             </form>
@@ -353,13 +361,13 @@ export const OfficePage: React.FC = () => {
         )}
 
         {/* Filtros */}
-        <div className="mb-6 flex gap-2 flex-wrap">
+        <div className="mb-8 flex gap-3 flex-wrap">
           <button
             onClick={() => setFilterType('all')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`px-5 py-2.5 rounded-md font-semibold transition-colors shadow-sm border ${
               filterType === 'all'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                ? 'bg-slate-800 text-white border-slate-800'
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
             }`}
           >
             Todos
@@ -368,10 +376,10 @@ export const OfficePage: React.FC = () => {
             <button
               key={type}
               onClick={() => setFilterType(type)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-5 py-2.5 rounded-md font-semibold transition-colors shadow-sm border ${
                 filterType === type
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                  ? 'bg-slate-800 text-white border-slate-800'
+                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
               }`}
             >
               {getTypeIcon(type)} {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -380,19 +388,19 @@ export const OfficePage: React.FC = () => {
         </div>
 
         {/* Lista de materiais */}
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredMaterials.length > 0 ? (
             filteredMaterials.map(material => (
               <div
                 key={material.id}
-                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border-t-4 border-indigo-500"
+                className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6 border border-slate-200 flex flex-col"
               >
-                <div className="flex items-start justify-between mb-3">
+                <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <span className="text-3xl">{getTypeIcon(material.type)}</span>
+                    <span className="text-3xl bg-slate-50 p-2 rounded-lg">{getTypeIcon(material.type)}</span>
                     <div>
-                      <h3 className="font-bold text-lg text-gray-800">{material.title}</h3>
-                      <span className={`inline-block mt-1 px-3 py-1 text-sm rounded-full font-medium ${getTypeBadgeColor(material.type)}`}>
+                      <h3 className="font-bold text-lg text-slate-900 leading-tight">{material.title}</h3>
+                      <span className={`inline-block mt-2 px-3 py-1 text-xs rounded-full font-semibold ${getTypeBadgeColor(material.type)}`}>
                         {material.type.toUpperCase()}
                       </span>
                     </div>
@@ -400,34 +408,41 @@ export const OfficePage: React.FC = () => {
                 </div>
 
                 {material.description && (
-                  <p className="text-gray-600 text-sm mb-3">{material.description}</p>
+                  <p className="text-slate-600 text-sm mb-4 flex-grow line-clamp-3">{material.description}</p>
                 )}
 
-                <p className="text-xs text-gray-400 mb-4">
-                  Adicionado em {new Date(material.uploadDate).toLocaleDateString('pt-BR')}
-                </p>
+                {!material.description && <div className="flex-grow"></div>}
 
-                <div className="flex gap-2">
-                  <a
-                    href={material.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-center font-semibold transition-colors"
-                  >
-                    🔗 Acessar
-                  </a>
-                  <button
-                    onClick={() => deleteMaterial(material.id)}
-                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
-                  >
-                    🗑️
-                  </button>
+                <div className="mt-auto pt-4 border-t border-slate-100">
+                  <p className="text-xs text-slate-500 mb-4 font-medium">
+                    Adicionado em {new Date(material.uploadDate).toLocaleDateString('pt-BR')}
+                  </p>
+                  <div className="flex gap-3">
+                    <a
+                      href={material.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-2.5 rounded-md text-center font-semibold transition-colors text-sm"
+                    >
+                      Abrir
+                    </a>
+                    <button
+                      onClick={() => deleteMaterial(material.id)}
+                      className="bg-white border border-red-200 text-red-600 hover:bg-red-50 px-4 py-2.5 rounded-md font-semibold transition-colors text-sm"
+                      title="Remover Material"
+                    >
+                      Remover
+                    </button>
+                  </div>
                 </div>
               </div>
             ))
           ) : (
-            <div className="col-span-full bg-white rounded-lg shadow-md p-12 text-center">
-              <p className="text-gray-500 text-lg">Nenhum material encontrado. Adicione um novo material para começar!</p>
+            <div className="col-span-full text-center py-20">
+              <div className="inline-block p-8 bg-white rounded-lg shadow-sm border border-slate-200">
+                <p className="text-slate-600 text-lg font-semibold mb-2">Nenhum material encontrado</p>
+                <p className="text-slate-500">Adicione um novo material ou altere o filtro atual.</p>
+              </div>
             </div>
           )}
         </div>

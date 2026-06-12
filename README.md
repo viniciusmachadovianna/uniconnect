@@ -190,9 +190,9 @@ uniconnect/
 - [ ] Notificações
 - [ ] Dark mode
 
-## 👨‍💻 Autor
+## 👨‍💻 Autores
 
-Vinicius Machado Vianna
+Jackson Aparecido - Jean de Souza - Pedro Atalaia 
 
 ## 📄 Licença
 

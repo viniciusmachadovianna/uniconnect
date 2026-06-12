@@ -85,14 +85,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     },
     {
       id: "2",
-      name: "Carlos Alberto Ribeiro de Souza Junior",
-      curso: "Sistemas de Informação",
-      area: "Desenvolvedor",
-      status: "active",
-      createdAt: new Date(),
-    },
-    {
-      id: "3",
       name: "Carlos Eduardo Dias da Silva",
       curso: "Sistemas de Informação",
       area: "Professor",
@@ -102,7 +94,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       createdAt: new Date(),
     },
     {
-      id: "4",
+      id: "3",
       name: "Felipe Augusto",
       curso: "Engenharia de Software",
       area: "Marketing",
@@ -111,7 +103,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       createdAt: new Date(),
     },
     {
-      id: "5",
+      id: "4",
       name: "Jackson Aparecido Faria Oliveira",
       curso: "Sistemas de Informação",
       area: "Desenvolvedor",
@@ -120,7 +112,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       createdAt: new Date(),
     },
     {
-      id: "6",
+      id: "5",
       name: "Jean de Souza Morais",
       curso: "Sistemas de Informação",
       area: "Desenvolvedor",
@@ -129,7 +121,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       createdAt: new Date(),
     },
     {
-      id: "7",
+      id: "6",
       name: "Luiz Fernando Pereira",
       curso: "Engenharia de Software",
       area: "Professor",
@@ -138,7 +130,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       createdAt: new Date(),
     },
     {
-      id: "8",
+      id: "7",
       name: "Manuela Oliveira Baganha",
       curso: "Administração",
       area: "Marketing",
@@ -148,7 +140,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       createdAt: new Date(),
     },
     {
-      id: "9",
+      id: "8",
       name: "Pedro Lucas Atalaia Fernandes",
       curso: "Sistemas de Informação",
       area: "Desenvolvedor",
@@ -158,7 +150,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       createdAt: new Date(),
     },
     {
-      id: "10",
+      id: "9",
       name: "Vinícius Machado Vianna",
       curso: "Engenharia de Software",
       area: "Professor",
