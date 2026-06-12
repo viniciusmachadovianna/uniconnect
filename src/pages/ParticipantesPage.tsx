@@ -125,13 +125,14 @@ export const ParticipantesPage: React.FC = () => {
                 }}
               >
                 {/* Card Header with Image */}
-                <div className={`relative h-48 bg-gradient-to-br ${getAreaColor(participant.area)} overflow-hidden`}>
+                <div className={`relative aspect-square bg-gradient-to-br ${getAreaColor(participant.area)} overflow-hidden`}>
                   {participant.photo ? (
                     <>
                       <img
                         src={participant.photo}
                         alt={participant.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        style={{ objectPosition: participant.imagePosition || 'top' }}
                       />
                       <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                     </>

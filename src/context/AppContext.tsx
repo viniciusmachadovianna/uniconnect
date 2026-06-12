@@ -7,6 +7,7 @@ interface Participant {
   area: string
   status: "active" | "inactive"
   photo?: string
+  imagePosition?: string
   createdAt: Date
   lastLogin?: Date
 }
@@ -78,6 +79,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       curso: "Engenharia de Software",
       area: "Marketing",
       status: "active",
+      photo: "https://uniconnectjf.wordpress.com/wp-content/uploads/2025/05/imagem-do-whatsapp-de-2025-05-17-as-15.33.47_125063a8.jpg",
+      imagePosition: "center 40%",
       createdAt: new Date(),
     },
     {
@@ -94,6 +97,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       curso: "Sistemas de Informação",
       area: "Professor",
       status: "active",
+      photo: "https://uniconnectjf.wordpress.com/wp-content/uploads/2025/06/imagem-do-whatsapp-de-2025-06-23-as-12.24.44_27ce8b8f.jpg",
+      imagePosition: "center 20%",
       createdAt: new Date(),
     },
     {
@@ -102,6 +107,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       curso: "Engenharia de Software",
       area: "Marketing",
       status: "active",
+      photo: "https://uniconnectjf.wordpress.com/wp-content/uploads/2025/06/imagem-do-whatsapp-de-2025-06-23-as-09.28.41_85b8a0e4.jpg",
       createdAt: new Date(),
     },
     {
@@ -110,6 +116,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       curso: "Sistemas de Informação",
       area: "Desenvolvedor",
       status: "active",
+      photo: "https://uniconnectjf.wordpress.com/wp-content/uploads/2025/05/link1-1.jpg",
       createdAt: new Date(),
     },
     {
@@ -118,6 +125,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       curso: "Sistemas de Informação",
       area: "Desenvolvedor",
       status: "active",
+      photo: "https://uniconnectjf.wordpress.com/wp-content/uploads/2025/05/img.jpg",
       createdAt: new Date(),
     },
     {
@@ -126,6 +134,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       curso: "Engenharia de Software",
       area: "Professor",
       status: "active",
+      photo: "https://uniconnectjf.wordpress.com/wp-content/uploads/2026/06/whatsapp-image-2026-06-11-at-21.12.10.jpeg",
       createdAt: new Date(),
     },
     {
@@ -134,6 +143,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       curso: "Administração",
       area: "Marketing",
       status: "active",
+      photo: "https://uniconnectjf.wordpress.com/wp-content/uploads/2026/06/whatsapp-image-2026-06-10-at-21.32.45.jpeg",
+      imagePosition: "center 30%",
       createdAt: new Date(),
     },
     {
@@ -142,6 +153,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       curso: "Sistemas de Informação",
       area: "Desenvolvedor",
       status: "active",
+      photo: "https://uniconnectjf.wordpress.com/wp-content/uploads/2025/05/img_20220507_071254-1.jpg",
+      imagePosition: "center 30%",
       createdAt: new Date(),
     },
     {
@@ -150,6 +163,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       curso: "Engenharia de Software",
       area: "Professor",
       status: "active",
+      photo: "https://uniconnectjf.wordpress.com/wp-content/uploads/2025/05/imagem-do-whatsapp-de-2025-05-17-as-15.40.45_674292aa.jpg",
       createdAt: new Date(),
     },
   ])

@@ -83,8 +83,8 @@ export const OfficePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-16">
-      <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="flex-grow max-w-6xl w-full mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">📚 Aba Office</h1>
           <p className="text-gray-600">Materiais completos do curso - Downloads e recursos</p>
