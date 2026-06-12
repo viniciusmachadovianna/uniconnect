@@ -1,35 +1,56 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Footer } from '../components/Footer';
+
+type MaterialType = 'pdf' | 'video' | 'link' | 'arquivo';
 
 interface Material {
   id: string;
   title: string;
   description: string;
-  type: 'pdf' | 'video' | 'link' | 'arquivo';
+  type: MaterialType;
   url: string;
-  uploadDate: Date;
+  uploadDate: string;
 }
 
-export const OfficePage: React.FC = () => {
-  const [materials, setMaterials] = useState<Material[]>([
-    {
-      id: '1',
-      title: 'Apresentação Introdutória',
-      description: 'Slides iniciais do curso',
-      type: 'pdf',
-      url: '#',
-      uploadDate: new Date('2024-01-15'),
-    },
-  ]);
+const API_BASE = '/api/materials';
 
+export const OfficePage: React.FC = () => {
+  const [materials, setMaterials] = useState<Material[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [filterType, setFilterType] = useState<string>('all');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [dragActive, setDragActive] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    type: 'pdf' as const,
+    type: 'pdf' as MaterialType,
     url: '',
   });
+
+  const fetchMaterials = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch(API_BASE);
+      if (!response.ok) {
+        throw new Error('Falha ao buscar materiais do backend');
+      }
+
+      const data: Material[] = await response.json();
+      setMaterials(data);
+    } catch (err) {
+      setError((err as Error).message || 'Erro ao conectar com o backend');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMaterials();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -39,25 +60,129 @@ export const OfficePage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (formData.title && formData.url) {
-      const newMaterial: Material = {
-        id: Date.now().toString(),
-        title: formData.title,
-        description: formData.description,
-        type: formData.type,
-        url: formData.url,
-        uploadDate: new Date(),
-      };
-      setMaterials([...materials, newMaterial]);
-      setFormData({ title: '', description: '', type: 'pdf', url: '' });
-      setShowForm(false);
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+      setFormData(prev => ({ ...prev, url: '' }));
     }
   };
 
-  const deleteMaterial = (id: string) => {
-    setMaterials(materials.filter(m => m.id !== id));
+  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setSelectedFile(e.dataTransfer.files[0]);
+      setFormData(prev => ({ ...prev, url: '' }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.title) {
+      setError('Título é obrigatório');
+      return;
+    }
+
+    if (!formData.url && !selectedFile) {
+      setError('Forneça uma URL ou selecione um arquivo');
+      return;
+    }
+
+    setError('');
+    setLoading(true);
+
+    try {
+      let finalUrl = formData.url;
+
+      // Se há arquivo selecionado, fazer upload
+      if (selectedFile) {
+        const reader = new FileReader();
+        
+        const fileBase64 = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve((reader.result as string).split(',')[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(selectedFile);
+        });
+
+        const uploadResponse = await fetch(`${API_BASE}/upload`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            file: fileBase64,
+            title: formData.title,
+          }),
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Falha ao fazer upload do arquivo');
+        }
+
+        const uploadResult = await uploadResponse.json();
+        finalUrl = uploadResult.url;
+      }
+
+      // Salvar material
+      const response = await fetch(API_BASE, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          url: finalUrl,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao salvar material');
+      }
+
+      const newMaterial: Material = await response.json();
+      setMaterials(prev => [newMaterial, ...prev]);
+      setFormData({ title: '', description: '', type: 'pdf', url: '' });
+      setSelectedFile(null);
+      setShowForm(false);
+    } catch (err) {
+      setError((err as Error).message || 'Erro ao conectar com o backend');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteMaterial = async (id: string) => {
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE}/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao remover material');
+      }
+
+      setMaterials(prev => prev.filter(material => material.id !== id));
+    } catch (err) {
+      setError((err as Error).message || 'Erro ao conectar com o backend');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredMaterials = filterType === 'all' ? materials : materials.filter(m => m.type === filterType);
@@ -90,14 +215,21 @@ export const OfficePage: React.FC = () => {
           <p className="text-gray-600">Materiais completos do curso - Downloads e recursos</p>
         </div>
 
+        {error && (
+          <div className="mb-6 rounded-lg bg-red-50 border border-red-200 p-4 text-red-700">
+            {error}
+          </div>
+        )}
+
         {/* Botão para adicionar material */}
-        <div className="mb-6">
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row items-start sm:items-center justify-between">
           <button
             onClick={() => setShowForm(!showForm)}
             className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
           >
             {showForm ? '✖ Cancelar' : '➕ Adicionar Material'}
           </button>
+          {loading && <span className="text-slate-500">Sincronizando com o backend...</span>}
         </div>
 
         {/* Formulário para adicionar material */}
@@ -130,7 +262,7 @@ export const OfficePage: React.FC = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
                   <select
@@ -147,17 +279,65 @@ export const OfficePage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">URL/Link *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">URL/Link</label>
                   <input
                     type="url"
                     name="url"
                     value={formData.url}
                     onChange={handleInputChange}
                     placeholder="https://exemplo.com/arquivo"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    required
+                    disabled={!!selectedFile}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500"
                   />
+                  <p className="text-xs text-gray-500 mt-1">OU faça upload abaixo</p>
                 </div>
+              </div>
+
+              {/* Área de upload com drag-and-drop */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">📤 Arquivo (Opcional)</label>
+                <div
+                  onDragEnter={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDragOver={handleDrag}
+                  onDrop={handleDrop}
+                  className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                    dragActive ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300 bg-gray-50'
+                  }`}
+                >
+                  <input
+                    type="file"
+                    onChange={handleFileSelect}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.mp4,.mkv,.mov"
+                  />
+                  <div className="pointer-events-none">
+                    {selectedFile ? (
+                      <>
+                        <p className="text-green-600 font-semibold">✅ Arquivo selecionado</p>
+                        <p className="text-sm text-gray-600 mt-1">{selectedFile.name}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-gray-700 font-semibold">Arraste um arquivo aqui</p>
+                        <p className="text-gray-600 text-sm mt-1">ou clique para procurar</p>
+                        <p className="text-xs text-gray-500 mt-2">Formatos: PDF, DOC, XLS, PPT, ZIP, MP4, etc.</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+                {selectedFile && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedFile(null)}
+                    className="mt-2 text-sm text-red-600 hover:text-red-700 font-medium"
+                  >
+                    ✕ Limpar arquivo
+                  </button>
+                )}
               </div>
 
               <div className="flex gap-2 pt-2">
@@ -224,7 +404,7 @@ export const OfficePage: React.FC = () => {
                 )}
 
                 <p className="text-xs text-gray-400 mb-4">
-                  Adicionado em {material.uploadDate.toLocaleDateString('pt-BR')}
+                  Adicionado em {new Date(material.uploadDate).toLocaleDateString('pt-BR')}
                 </p>
 
                 <div className="flex gap-2">
