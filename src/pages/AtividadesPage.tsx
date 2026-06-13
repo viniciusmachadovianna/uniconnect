@@ -623,3 +623,5 @@ export const AtividadesPage: React.FC = () => {
       `}</style>
       <Footer />
     </div>
+  );
+};

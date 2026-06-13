@@ -1,142 +1,24 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Footer } from '../components/Footer';
 
 export const AulasPage: React.FC = () => {
-  const { classes, addClass } = useAppContext();
-  const [showForm, setShowForm] = useState(false);
-  
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    date: '',
-    location: '',
-  });
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    addClass({
-      title: formData.title,
-      description: formData.description,
-      date: new Date(formData.date),
-      duration: 0,
-      instructor: 'uniconnect',
-      location: formData.location,
-      participants: 0,
-      status: 'completed',
-    });
-    setFormData({
-      title: '',
-      description: '',
-      date: '',
-      location: '',
-    });
-    setShowForm(false);
-  };
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('pt-BR');
-  };
+  const { classes } = useAppContext();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Header Section */}
       <div className="relative bg-slate-900 text-white border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
-            <div>
+          <div>
               <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">Aulas Ministradas</h1>
               <p className="text-lg text-slate-300">Registre e acompanhe todas as aulas do grupo</p>
-            </div>
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-md shadow-sm transition-colors"
-            >
-              {showForm ? "Cancelar" : "Nova Aula"}
-            </button>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-
-        {/* Form */}
-        {showForm && (
-          <div className="max-w-lg mx-auto bg-white rounded-lg shadow-sm border border-slate-200 p-6 mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Nova Aula
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Título da Aula *</label>
-                <input
-                  type="text"
-                  name="title"
-                  placeholder="Digite o título da aula"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Descrição *</label>
-                <textarea
-                  name="description"
-                  placeholder="Descreva o conteúdo da aula"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Data e Hora *</label>
-                  <input
-                    type="datetime-local"
-                    name="date"
-                    value={formData.date}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Local *</label>
-                  <input
-                    type="text"
-                    name="location"
-                    placeholder="Ex: Colégio Duque de Caxias"
-                    value={formData.location}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-md transition-colors"
-              >
-                Adicionar Aula
-              </button>
-            </form>
-          </div>
-        )}
 
         {/* Classes List */}
         {classes.length > 0 ? (

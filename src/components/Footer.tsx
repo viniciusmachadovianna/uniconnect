@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import logoImage from '../../frontend/src/assets/uni.png';
 
 export const Footer: React.FC = () => {
