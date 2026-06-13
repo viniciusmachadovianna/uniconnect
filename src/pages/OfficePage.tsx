@@ -1,189 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Footer } from '../components/Footer';
-
-type MaterialType = 'pdf' | 'video' | 'link' | 'arquivo';
-
-interface Material {
-  id: string;
-  title: string;
-  description: string;
-  type: MaterialType;
-  url: string;
-  uploadDate: string;
-}
-
-const API_BASE = '/api/materials';
+import { useAppContext } from '../context/AppContext';
 
 export const OfficePage: React.FC = () => {
-  const [materials, setMaterials] = useState<Material[]>([]);
-  const [showForm, setShowForm] = useState(false);
+  const { materials } = useAppContext();
   const [filterType, setFilterType] = useState<string>('all');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [dragActive, setDragActive] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    type: 'pdf' as MaterialType,
-    url: '',
-  });
-
-  const fetchMaterials = async () => {
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch(API_BASE);
-      if (!response.ok) {
-        throw new Error('Falha ao buscar materiais do backend');
-      }
-
-      const data: Material[] = await response.json();
-      setMaterials(data);
-    } catch (err) {
-      setError((err as Error).message || 'Erro ao conectar com o backend');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchMaterials();
-  }, []);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
-      setFormData(prev => ({ ...prev, url: '' }));
-    }
-  };
-
-  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true);
-    } else if (e.type === 'dragleave') {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setSelectedFile(e.dataTransfer.files[0]);
-      setFormData(prev => ({ ...prev, url: '' }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!formData.title) {
-      setError('Título é obrigatório');
-      return;
-    }
-
-    if (!formData.url && !selectedFile) {
-      setError('Forneça uma URL ou selecione um arquivo');
-      return;
-    }
-
-    setError('');
-    setLoading(true);
-
-    try {
-      let finalUrl = formData.url;
-
-      // Se há arquivo selecionado, fazer upload
-      if (selectedFile) {
-        const reader = new FileReader();
-        
-        const fileBase64 = await new Promise<string>((resolve, reject) => {
-          reader.onload = () => resolve((reader.result as string).split(',')[1]);
-          reader.onerror = reject;
-          reader.readAsDataURL(selectedFile);
-        });
-
-        const uploadResponse = await fetch(`${API_BASE}/upload`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            file: fileBase64,
-            title: formData.title,
-          }),
-        });
-
-        if (!uploadResponse.ok) {
-          throw new Error('Falha ao fazer upload do arquivo');
-        }
-
-        const uploadResult = await uploadResponse.json();
-        finalUrl = uploadResult.url;
-      }
-
-      // Salvar material
-      const response = await fetch(API_BASE, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          url: finalUrl,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Falha ao salvar material');
-      }
-
-      const newMaterial: Material = await response.json();
-      setMaterials(prev => [newMaterial, ...prev]);
-      setFormData({ title: '', description: '', type: 'pdf', url: '' });
-      setSelectedFile(null);
-      setShowForm(false);
-    } catch (err) {
-      setError((err as Error).message || 'Erro ao conectar com o backend');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteMaterial = async (id: string) => {
-    setError('');
-    setLoading(true);
-
-    try {
-      const response = await fetch(`${API_BASE}/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Falha ao remover material');
-      }
-
-      setMaterials(prev => prev.filter(material => material.id !== id));
-    } catch (err) {
-      setError((err as Error).message || 'Erro ao conectar com o backend');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const filteredMaterials = filterType === 'all' ? materials : materials.filter(m => m.type === filterType);
 
@@ -209,157 +30,18 @@ export const OfficePage: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
-      {/* Header Section */}
       <div className="relative bg-slate-900 text-white border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">Office</h1>
-              <p className="text-lg md:text-xl text-slate-300 max-w-3xl leading-relaxed">
-                Materiais completos do curso - Downloads e recursos
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              {loading && <span className="text-slate-300 text-sm font-medium">Sincronizando...</span>}
-              <button
-                onClick={() => setShowForm(!showForm)}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-md shadow-sm transition-colors whitespace-nowrap"
-              >
-                {showForm ? 'Cancelar' : 'Novo Material'}
-              </button>
-            </div>
+          <div>
+            <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">Office</h1>
+            <p className="text-lg md:text-xl text-slate-300 max-w-3xl leading-relaxed">
+              Materiais completos do curso - Downloads e recursos
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-grow max-w-7xl w-full mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        {error && (
-          <div className="mb-8 rounded-lg bg-red-50 border border-red-200 p-4 text-red-700 shadow-sm">
-            {error}
-          </div>
-        )}
-
-        {/* Formulário para adicionar material */}
-        {showForm && (
-          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">Novo Material</h2>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Título *</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  placeholder="Ex: Aula 01 - Introdução"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Descrição</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  placeholder="Descrição adicional sobre o material"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  rows={3}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo *</label>
-                  <select
-                    name="type"
-                    value={formData.type}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  >
-                    <option value="pdf">📄 PDF</option>
-                    <option value="video">🎥 Vídeo</option>
-                    <option value="link">🔗 Link</option>
-                    <option value="arquivo">📦 Arquivo</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">URL/Link</label>
-                  <input
-                    type="url"
-                    name="url"
-                    value={formData.url}
-                    onChange={handleInputChange}
-                    placeholder="https://exemplo.com/arquivo"
-                    disabled={!!selectedFile}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-slate-100 disabled:text-slate-500 transition-all"
-                  />
-                  <p className="text-xs text-slate-500 mt-2 font-medium">OU faça upload de um arquivo abaixo</p>
-                </div>
-              </div>
-
-              {/* Área de upload com drag-and-drop */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">📤 Arquivo (Opcional)</label>
-                <div
-                  onDragEnter={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDragOver={handleDrag}
-                  onDrop={handleDrop}
-                  className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                    dragActive ? 'border-blue-500 bg-blue-50' : 'border-slate-300 bg-slate-50'
-                  }`}
-                >
-                  <input
-                    type="file"
-                    onChange={handleFileSelect}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.mp4,.mkv,.mov"
-                  />
-                  <div className="pointer-events-none">
-                    {selectedFile ? (
-                      <>
-                        <p className="text-green-600 font-semibold">✅ Arquivo selecionado</p>
-                        <p className="text-sm text-slate-600 mt-1">{selectedFile.name}</p>
-                        <p className="text-xs text-slate-500 mt-1">
-                          {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <p className="text-slate-700 font-semibold">Arraste um arquivo aqui</p>
-                        <p className="text-slate-600 text-sm mt-1">ou clique para procurar</p>
-                        <p className="text-xs text-slate-500 mt-2">Formatos: PDF, DOC, XLS, PPT, ZIP, MP4, etc.</p>
-                      </>
-                    )}
-                  </div>
-                </div>
-                {selectedFile && (
-                  <button
-                    type="button"
-                    onClick={() => setSelectedFile(null)}
-                    className="mt-3 text-sm text-red-600 hover:text-red-700 font-semibold transition-colors"
-                  >
-                    ✕ Limpar arquivo
-                  </button>
-                )}
-              </div>
-
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-md transition-colors"
-                >
-                  Salvar Material
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-
         {/* Filtros */}
         <div className="mb-8 flex gap-3 flex-wrap">
           <button
@@ -426,13 +108,6 @@ export const OfficePage: React.FC = () => {
                     >
                       Abrir
                     </a>
-                    <button
-                      onClick={() => deleteMaterial(material.id)}
-                      className="bg-white border border-red-200 text-red-600 hover:bg-red-50 px-4 py-2.5 rounded-md font-semibold transition-colors text-sm"
-                      title="Remover Material"
-                    >
-                      Remover
-                    </button>
                   </div>
                 </div>
               </div>
@@ -441,7 +116,7 @@ export const OfficePage: React.FC = () => {
             <div className="col-span-full text-center py-20">
               <div className="inline-block p-8 bg-white rounded-lg shadow-sm border border-slate-200">
                 <p className="text-slate-600 text-lg font-semibold mb-2">Nenhum material encontrado</p>
-                <p className="text-slate-500">Adicione um novo material ou altere o filtro atual.</p>
+                <p className="text-slate-500">Adicione materiais pelo painel admin em /admin</p>
               </div>
             </div>
           )}

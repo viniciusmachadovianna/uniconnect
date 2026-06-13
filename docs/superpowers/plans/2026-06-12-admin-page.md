@@ -1,39 +1,132 @@
+# Admin Page Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Criar página oculta `/admin` com login e painel de gerenciamento completo (participantes, aulas, materiais).
+
+**Architecture:** Uma única página `AdminPage.tsx` que alterna entre tela de login e painel via estado `isAuthenticated`. O painel usa abas locais e consome o `AppContext` existente para participantes e aulas, e chama a API `/api/materials` para materiais. A rota `/admin` é registrada no `App.tsx` fora do layout da Navbar.
+
+**Tech Stack:** React 18, TypeScript, Tailwind CSS, React Router DOM 6, AppContext existente, fetch API.
+
+---
+
+## Arquivos
+
+| Arquivo | Ação |
+|---|---|
+| `src/pages/AdminPage.tsx` | Criar — página completa com login + painel |
+| `src/App.tsx` | Modificar — rota `/admin` sem Navbar |
+
+---
+
+### Task 1: Ajustar App.tsx para suportar rota /admin sem Navbar
+
+**Files:**
+- Modify: `src/App.tsx`
+
+- [ ] **Step 1: Ler o arquivo atual**
+
+Conteúdo atual de `src/App.tsx`:
+```tsx
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AppProvider } from './context/AppContext';
+import { Navbar } from './components/Navbar';
+import { HomePage } from './pages/HomePage';
+import { ParticipantesPage } from './pages/ParticipantesPage';
+import { AulasPage } from './pages/AulasPage';
+import { AboutPage } from './pages/AboutPage';
+import { OfficePage } from './pages/OfficePage';
+
+import './index.css';
+
+function App() {
+  return (
+    <Router>
+      <AppProvider>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/participantes" element={<ParticipantesPage />} />
+          <Route path="/aulas" element={<AulasPage />} />
+          <Route path="/office" element={<OfficePage />} />
+          <Route path="/sobre" element={<AboutPage />} />
+        </Routes>
+      </AppProvider>
+    </Router>
+  );
+}
+
+export default App;
+```
+
+- [ ] **Step 2: Substituir conteúdo de App.tsx**
+
+Substituir pelo seguinte (usa `useLocation` para esconder Navbar em `/admin`):
+
+```tsx
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { AppProvider } from './context/AppContext';
+import { Navbar } from './components/Navbar';
+import { HomePage } from './pages/HomePage';
+import { ParticipantesPage } from './pages/ParticipantesPage';
+import { AulasPage } from './pages/AulasPage';
+import { AboutPage } from './pages/AboutPage';
+import { OfficePage } from './pages/OfficePage';
+import { AdminPage } from './pages/AdminPage';
+
+import './index.css';
+
+function Layout() {
+  const location = useLocation();
+  const isAdmin = location.pathname === '/admin';
+
+  return (
+    <>
+      {!isAdmin && <Navbar />}
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/participantes" element={<ParticipantesPage />} />
+        <Route path="/aulas" element={<AulasPage />} />
+        <Route path="/office" element={<OfficePage />} />
+        <Route path="/sobre" element={<AboutPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+      </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppProvider>
+        <Layout />
+      </AppProvider>
+    </Router>
+  );
+}
+
+export default App;
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add src/App.tsx
+git commit -m "feat: adiciona rota /admin sem navbar"
+```
+
+---
+
+### Task 2: Criar AdminPage.tsx — tela de login
+
+**Files:**
+- Create: `src/pages/AdminPage.tsx`
+
+- [ ] **Step 1: Criar o arquivo com a estrutura base e tela de login**
+
+```tsx
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
-
-interface ConfirmState {
-  visible: boolean;
-  message: string;
-  onConfirm: () => void;
-}
-
-const ConfirmToast: React.FC<{ state: ConfirmState; onCancel: () => void }> = ({ state, onCancel }) => {
-  if (!state.visible) return null;
-  return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white border border-slate-200 shadow-xl rounded-xl px-6 py-4 flex items-center gap-4 min-w-[320px]">
-      <span className="text-slate-800 text-sm font-medium flex-1">{state.message}</span>
-      <button
-        onClick={onCancel}
-        className="text-slate-500 hover:text-slate-700 text-sm font-semibold px-3 py-1.5 rounded-md border border-slate-200 hover:bg-slate-50 transition-colors"
-      >
-        Cancelar
-      </button>
-      <button
-        onClick={() => { state.onConfirm(); onCancel(); }}
-        className="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-3 py-1.5 rounded-md transition-colors"
-      >
-        Remover
-      </button>
-    </div>
-  );
-};
-
-function useConfirmToast() {
-  const [confirm, setConfirm] = useState<ConfirmState>({ visible: false, message: '', onConfirm: () => {} });
-  const ask = (message: string, onConfirm: () => void) => setConfirm({ visible: true, message, onConfirm });
-  const cancel = () => setConfirm(s => ({ ...s, visible: false }));
-  return { confirm, ask, cancel };
-}
 
 const ADMIN_USER = 'Admin';
 const ADMIN_PASS = 'CarlosUniacademiaVaiseFuder';
@@ -110,7 +203,27 @@ export const AdminPage: React.FC = () => {
 
   return <AdminPanel onLogout={() => setIsAuthenticated(false)} />;
 };
+```
 
+- [ ] **Step 2: Commit parcial**
+
+```bash
+git add src/pages/AdminPage.tsx
+git commit -m "feat: tela de login do admin"
+```
+
+---
+
+### Task 3: Criar componente AdminPanel com abas
+
+**Files:**
+- Modify: `src/pages/AdminPage.tsx`
+
+- [ ] **Step 1: Adicionar componente AdminPanel após o export AdminPage**
+
+Adicionar ao final do arquivo `src/pages/AdminPage.tsx` (após o componente `AdminPage`):
+
+```tsx
 const AdminPanel: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState<Tab>('participantes');
 
@@ -122,6 +235,7 @@ const AdminPanel: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      {/* Header */}
       <div className="bg-slate-900 text-white px-6 py-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">Painel Admin</h1>
         <button
@@ -132,6 +246,7 @@ const AdminPanel: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         </button>
       </div>
 
+      {/* Abas */}
       <div className="border-b border-slate-200 bg-white">
         <div className="max-w-7xl mx-auto px-6 flex gap-1">
           {tabs.map(tab => (
@@ -150,6 +265,7 @@ const AdminPanel: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         </div>
       </div>
 
+      {/* Conteúdo da aba */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         {activeTab === 'participantes' && <TabParticipantes />}
         {activeTab === 'aulas' && <TabAulas />}
@@ -158,47 +274,62 @@ const AdminPanel: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
     </div>
   );
 };
+```
 
+- [ ] **Step 2: Commit**
+
+```bash
+git add src/pages/AdminPage.tsx
+git commit -m "feat: estrutura do painel admin com abas"
+```
+
+---
+
+### Task 4: Implementar aba Participantes
+
+**Files:**
+- Modify: `src/pages/AdminPage.tsx`
+
+- [ ] **Step 1: Adicionar componente TabParticipantes ao final do arquivo**
+
+```tsx
 const TabParticipantes: React.FC = () => {
   const { participants, addParticipant, updateParticipant, deleteParticipant } = useAppContext();
-  const { confirm, ask, cancel } = useConfirmToast();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ name: '', curso: '', area: 'Desenvolvedor', status: 'active' as 'active' | 'inactive', photo: '' });
+  const [formData, setFormData] = useState({ name: '', curso: '', area: 'Desenvolvedor', status: 'active' as 'active' | 'inactive' });
 
   const resetForm = () => {
-    setFormData({ name: '', curso: '', area: 'Desenvolvedor', status: 'active', photo: '' });
+    setFormData({ name: '', curso: '', area: 'Desenvolvedor', status: 'active' });
     setEditingId(null);
     setShowForm(false);
   };
 
-  const handleEdit = (p: (typeof participants)[number]) => {
-    setFormData({ name: p.name, curso: p.curso, area: p.area, status: p.status, photo: p.photo ?? '' });
+  const handleEdit = (p: typeof participants[0]) => {
+    setFormData({ name: p.name, curso: p.curso, area: p.area, status: p.status });
     setEditingId(p.id);
     setShowForm(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const data = { ...formData, photo: formData.photo || undefined };
     if (editingId) {
-      updateParticipant(editingId, data);
+      updateParticipant(editingId, formData);
     } else {
-      addParticipant(data);
+      addParticipant(formData);
     }
     resetForm();
   };
 
   return (
     <div>
-      <ConfirmToast state={confirm} onCancel={cancel} />
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-bold text-slate-900">Participantes ({participants.length})</h2>
         <button
-          onClick={() => { if (showForm) { resetForm(); } else { setShowForm(true); } }}
+          onClick={() => { resetForm(); setShowForm(!showForm); }}
           className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors"
         >
-          {showForm ? 'Cancelar' : 'Adicionar Participante'}
+          {showForm && !editingId ? 'Cancelar' : 'Adicionar Participante'}
         </button>
       </div>
 
@@ -235,7 +366,6 @@ const TabParticipantes: React.FC = () => {
               >
                 <option value="Desenvolvedor">Desenvolvedor</option>
                 <option value="Professor">Professor</option>
-                <option value="Professor/Lider">Professor/Lider</option>
                 <option value="Marketing">Marketing</option>
               </select>
             </div>
@@ -250,16 +380,6 @@ const TabParticipantes: React.FC = () => {
                 <option value="inactive">Inativo</option>
               </select>
             </div>
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">URL da Foto</label>
-            <input
-              type="url"
-              value={formData.photo}
-              onChange={e => setFormData(p => ({ ...p, photo: e.target.value }))}
-              placeholder="https://..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-            />
           </div>
           <div className="flex gap-3">
             <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors">
@@ -297,7 +417,7 @@ const TabParticipantes: React.FC = () => {
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
                     <button onClick={() => handleEdit(p)} className="text-blue-600 hover:text-blue-800 font-semibold text-xs">Editar</button>
-                    <button onClick={() => ask(`Remover "${p.name}"?`, () => deleteParticipant(p.id))} className="text-red-600 hover:text-red-800 font-semibold text-xs">Remover</button>
+                    <button onClick={() => deleteParticipant(p.id)} className="text-red-600 hover:text-red-800 font-semibold text-xs">Remover</button>
                   </div>
                 </td>
               </tr>
@@ -308,39 +428,54 @@ const TabParticipantes: React.FC = () => {
     </div>
   );
 };
+```
 
+- [ ] **Step 2: Commit**
+
+```bash
+git add src/pages/AdminPage.tsx
+git commit -m "feat: aba participantes no painel admin"
+```
+
+---
+
+### Task 5: Implementar aba Aulas
+
+**Files:**
+- Modify: `src/pages/AdminPage.tsx`
+
+- [ ] **Step 1: Adicionar componente TabAulas ao final do arquivo**
+
+```tsx
 const TabAulas: React.FC = () => {
   const { classes, addClass, updateClass, deleteClass } = useAppContext();
-  const { confirm, ask, cancel } = useConfirmToast();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ title: '', description: '', date: '', location: '', instagramUrl: '' });
+  const [formData, setFormData] = useState({ title: '', description: '', date: '', location: '' });
 
   const resetForm = () => {
-    setFormData({ title: '', description: '', date: '', location: '', instagramUrl: '' });
+    setFormData({ title: '', description: '', date: '', location: '' });
     setEditingId(null);
     setShowForm(false);
   };
 
-  const handleEdit = (c: (typeof classes)[number]) => {
+  const handleEdit = (c: typeof classes[0]) => {
     const d = new Date(c.date);
     const pad = (n: number) => String(n).padStart(2, '0');
     const dateStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    setFormData({ title: c.title, description: c.description, date: dateStr, location: c.location, instagramUrl: c.instagramUrl ?? '' });
+    setFormData({ title: c.title, description: c.description, date: dateStr, location: c.location });
     setEditingId(c.id);
     setShowForm(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const instagramUrl = formData.instagramUrl || undefined;
     if (editingId) {
       updateClass(editingId, {
         title: formData.title,
         description: formData.description,
         date: new Date(formData.date),
         location: formData.location,
-        instagramUrl,
       });
     } else {
       addClass({
@@ -352,7 +487,6 @@ const TabAulas: React.FC = () => {
         location: formData.location,
         participants: 0,
         status: 'completed',
-        instagramUrl,
       });
     }
     resetForm();
@@ -360,7 +494,6 @@ const TabAulas: React.FC = () => {
 
   return (
     <div>
-      <ConfirmToast state={confirm} onCancel={cancel} />
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-bold text-slate-900">Aulas ({classes.length})</h2>
         <button
@@ -415,16 +548,6 @@ const TabAulas: React.FC = () => {
               />
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Link do Post do Instagram</label>
-            <input
-              type="url"
-              value={formData.instagramUrl}
-              onChange={e => setFormData(p => ({ ...p, instagramUrl: e.target.value }))}
-              placeholder="https://www.instagram.com/p/ABC123/"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-            />
-          </div>
           <div className="flex gap-3">
             <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors">
               {editingId ? 'Salvar' : 'Adicionar'}
@@ -459,7 +582,7 @@ const TabAulas: React.FC = () => {
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
                     <button onClick={() => handleEdit(c)} className="text-blue-600 hover:text-blue-800 font-semibold text-xs">Editar</button>
-                    <button onClick={() => ask(`Remover "${c.title}"?`, () => deleteClass(c.id))} className="text-red-600 hover:text-red-800 font-semibold text-xs">Remover</button>
+                    <button onClick={() => deleteClass(c.id)} className="text-red-600 hover:text-red-800 font-semibold text-xs">Remover</button>
                   </div>
                 </td>
               </tr>
@@ -470,23 +593,84 @@ const TabAulas: React.FC = () => {
     </div>
   );
 };
+```
 
+- [ ] **Step 2: Commit**
+
+```bash
+git add src/pages/AdminPage.tsx
+git commit -m "feat: aba aulas no painel admin"
+```
+
+---
+
+### Task 6: Implementar aba Materiais
+
+**Files:**
+- Modify: `src/pages/AdminPage.tsx`
+
+- [ ] **Step 1: Adicionar componente TabMateriais ao final do arquivo**
+
+```tsx
 const TabMateriais: React.FC = () => {
-  const { materials, addMaterial, deleteMaterial } = useAppContext();
-  const { confirm, ask, cancel } = useConfirmToast();
+  const [materials, setMaterials] = useState<Material[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ title: '', description: '', type: 'pdf' as MaterialType, url: '' });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const fetchMaterials = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/materials');
+      if (!res.ok) throw new Error('Falha ao buscar materiais');
+      const data: Material[] = await res.json();
+      setMaterials(data);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => { fetchMaterials(); }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    addMaterial(formData);
-    setFormData({ title: '', description: '', type: 'pdf', url: '' });
-    setShowForm(false);
+    setError('');
+    setLoading(true);
+    try {
+      const res = await fetch('/api/materials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) throw new Error('Falha ao salvar material');
+      const newMaterial: Material = await res.json();
+      setMaterials(prev => [newMaterial, ...prev]);
+      setFormData({ title: '', description: '', type: 'pdf', url: '' });
+      setShowForm(false);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    setError('');
+    try {
+      const res = await fetch(`/api/materials/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Falha ao remover material');
+      setMaterials(prev => prev.filter(m => m.id !== id));
+    } catch (err) {
+      setError((err as Error).message);
+    }
   };
 
   return (
     <div>
-      <ConfirmToast state={confirm} onCancel={cancel} />
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-bold text-slate-900">Materiais ({materials.length})</h2>
         <button
@@ -496,6 +680,9 @@ const TabMateriais: React.FC = () => {
           {showForm ? 'Cancelar' : 'Adicionar Material'}
         </button>
       </div>
+
+      {error && <div className="mb-4 text-red-600 text-sm font-medium">{error}</div>}
+      {loading && <div className="mb-4 text-slate-500 text-sm">Carregando...</div>}
 
       {showForm && (
         <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-lg p-6 mb-6 space-y-4">
@@ -575,7 +762,7 @@ const TabMateriais: React.FC = () => {
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
                     <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 font-semibold text-xs">Abrir</a>
-                    <button onClick={() => ask(`Remover "${m.title}"?`, () => deleteMaterial(m.id))} className="text-red-600 hover:text-red-800 font-semibold text-xs">Remover</button>
+                    <button onClick={() => handleDelete(m.id)} className="text-red-600 hover:text-red-800 font-semibold text-xs">Remover</button>
                   </div>
                 </td>
               </tr>
@@ -586,3 +773,38 @@ const TabMateriais: React.FC = () => {
     </div>
   );
 };
+```
+
+- [ ] **Step 2: Commit final**
+
+```bash
+git add src/pages/AdminPage.tsx
+git commit -m "feat: aba materiais no painel admin"
+```
+
+---
+
+### Task 7: Verificar build sem erros
+
+**Files:** nenhum
+
+- [ ] **Step 1: Rodar o type-check**
+
+```bash
+npx tsc --noEmit
+```
+
+Esperado: sem erros.
+
+- [ ] **Step 2: Verificar no navegador**
+
+Abrir `http://localhost:5173/admin` — deve aparecer a tela de login.
+Entrar com `Admin` / `CarlosUniacademiaVaiseFuder` — deve aparecer o painel com as 3 abas.
+Verificar que a Navbar não aparece na página `/admin`.
+
+- [ ] **Step 3: Commit final**
+
+```bash
+git add -A
+git commit -m "feat: página admin completa com login e painel de gerenciamento"
+```

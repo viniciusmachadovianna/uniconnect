@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 3000;
 const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
 
 const materials: Material[] = [];
-{ limit: '50mb' }));
+app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/uploads', express.static('uploads'));
 
@@ -28,8 +28,12 @@ if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
 
-app.use(express.json());
 app.use((req: Request, res: Response, next: NextFunction) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  if (req.method === 'POST') {
+    console.log('[body]', JSON.stringify(req.body));
+  }
+
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -46,6 +50,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.get('/api/materials', (req: Request, res: Response) => {
+  console.log('[GET /api/materials] retornando', materials.length, 'itens');
   res.json(materials);
 });
 
@@ -77,8 +82,10 @@ app.post('/api/materials/upload', (req: Request, res: Response) => {
 
 app.post('/api/materials', (req: Request, res: Response) => {
   const { title, description, type, url } = req.body;
+  console.log('[POST /api/materials] recebido:', { title, type, url });
 
   if (!title || !url || !type) {
+    console.log('[POST /api/materials] campos faltando:', { title, url, type });
     return res.status(400).json({ error: 'Título, tipo e URL são obrigatórios.' });
   }
 
@@ -92,6 +99,7 @@ app.post('/api/materials', (req: Request, res: Response) => {
   };
 
   materials.unshift(material);
+  console.log('[POST /api/materials] salvo. Total:', materials.length);
 
   res.status(201).json(material);
 });
@@ -108,10 +116,17 @@ app.delete('/api/materials/:id', (req: Request, res: Response) => {
   res.sendStatus(204);
 });
 
+app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
+  console.error('[ERRO INESPERADO]', err.message, err.stack);
+  res.status(500).json({ error: err.message });
+});
+
 app.use((req: Request, res: Response) => {
+  console.log('[404] rota não encontrada:', req.method, req.path);
   res.status(404).json({ error: 'Rota não encontrada.' });
 });
 
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`[SERVIDOR] rodando na porta ${PORT}`);
+  console.log(`[UPLOADS] diretório: ${UPLOADS_DIR}`);
 });
