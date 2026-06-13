@@ -137,7 +137,7 @@ const TabParticipantes: React.FC = () => {
     setShowForm(false);
   };
 
-  const handleEdit = (p: typeof participants[0]) => {
+  const handleEdit = (p: (typeof participants)[number]) => {
     setFormData({ name: p.name, curso: p.curso, area: p.area, status: p.status });
     setEditingId(p.id);
     setShowForm(true);
@@ -273,7 +273,7 @@ const TabAulas: React.FC = () => {
     setShowForm(false);
   };
 
-  const handleEdit = (c: typeof classes[0]) => {
+  const handleEdit = (c: (typeof classes)[number]) => {
     const d = new Date(c.date);
     const pad = (n: number) => String(n).padStart(2, '0');
     const dateStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
