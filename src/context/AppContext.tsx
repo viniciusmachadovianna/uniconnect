@@ -108,7 +108,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       curso: "Sistemas de Informação",
       area: "Desenvolvedor",
       status: "active",
-      photo: "https://uniconnectjf.wordpress.com/wp-content/uploads/2025/05/link1-1.jpg",
+      photo: "https://uniconnectjf.wordpress.com/wp-content/uploads/2026/06/whatsapp-image-2026-06-12-at-20.58.27.jpeg",
       createdAt: new Date(),
     },
     {
