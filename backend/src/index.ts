@@ -1,4 +1,5 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
@@ -19,7 +20,7 @@ const PORT = process.env.PORT || 3000;
 const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
 
 const materials: Material[] = [];
-{ limit: '50mb' }));
+app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/uploads', express.static('uploads'));
 
